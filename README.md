@@ -22,6 +22,7 @@ Email: cen@njust.edu.cn
 
 
 <br><b>A Demo</b>
+<pre>
 include("julia-community/julia-community.jl")
 using DataFrames
 
@@ -43,3 +44,4 @@ println(jc.communities)
 println(jc.memberships)
 
 juliac.plot_community(jc, 1, line_type="curve")
+</pre>
