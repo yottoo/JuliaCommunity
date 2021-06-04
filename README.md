@@ -40,9 +40,11 @@ jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "l
 
 #plot the overall network
 juliac.plot_network(jc, line_type="curve", node_size_smoother = 0.8, edge_width_smoother = 1.2)
+</pre>
 
 <img src="network.svg" />
 
+<pre>
 #run louvain algorithm
 #juliac.set_method(jc, jc.methods.louvain)
 
@@ -63,6 +65,6 @@ println(jc.memberships)
 
 #plot the first community
 juliac.plot_community(jc, 1, line_type="curve")
+</pre>
 
 <img src="community-1.svg" />
-</pre>
