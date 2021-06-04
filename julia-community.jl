@@ -198,8 +198,9 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     # edge_weights = jc.network[:weight].^0.72
     edge_weight = jc.edge_weighted ? jc.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
-    colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
-    shuffle!(colors)
+    node_colorss = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
+    edge_colors = ["navajowhite3", "coral2", "orange3", "yellow3", "yellowgreen", "turquoise", "lightskyblue", "mediumpurple1", "hotpink2", "tan3", "grey64"]
+    shuffle!(node_colorss)
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
     # edge_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((weights .-  minimum(weights)) ./ (maximum(weights) - minimum(weights))))]
     
@@ -210,10 +211,7 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     
     categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
     #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
-    node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
-    #node_colors = []
-    # print("\t\t", length(categories), "\n")
-    #for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end
+    node_colors = node_colorss[(categories.membership .+ 1) .% length(node_colorss) .+ 1]
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
     run_label = "$(jc.method)-$(jc.γ)$(jc.task_series)"
@@ -227,7 +225,7 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
                     nodefillc=node_colors,
                     nodelabelc=node_colors, 
                     linetype=line_type,
-                    edgestrokec=colors[rand(1:length(colors), 1)[1]], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
+                    edgestrokec=edge_colors[rand(1:length(edge_colors), 1)[1]], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
                     ); 
                     # or linetype = "curve" or "straight" 
                     # edgestrokec = edge_colors,  
@@ -239,7 +237,7 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
                     linetype=line_type,
-                    edgestrokec=colors[rand(1:length(colors), 1)[1]]);
+                    edgestrokec=edge_colors[rand(1:length(edge_colors), 1)[1]]);
     end
     if !ispath(fig_path) mkpath(fig_path) end
     draw(SVG("$fig_path/network-graph-$run_label.svg", 20cm, 16cm), plot);
@@ -325,6 +323,7 @@ function community_discover(jc::JuliaCommunityInstance)
     # for i in 1:length(partitions) partitions[i] .+= 1 end
     # partitions.membership .+= 1
     jc.membership_vector = partitions.membership .+ 1
+    # println(partitions.membership)
     
     jc.modularity = modularity(jc.graph, jc.membership_vector, γ=1.0)
     jc.quality =  jc.method == jc.methods.CPM ? partitions.quality() : jc.modularity
@@ -426,8 +425,9 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
     # edge_weights = community_graph.network[:weight].^0.72
     edge_weight = jc.edge_weighted ? community_graph.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
-    colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
-    shuffle!(colors)
+    node_colorss = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
+    edge_colors = ["navajowhite3", "coral2", "orange3", "yellow3", "yellowgreen", "turquoise", "lightskyblue", "mediumpurple1", "hotpink2", "tan3", "grey64"]
+    shuffle!(node_colorss)
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
     # edge_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((weights .-  minimum(weights)) ./ (maximum(weights) - minimum(weights))))]
     
@@ -448,10 +448,7 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
 
     categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
     #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
-    node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
-    #node_colors = []
-    # print("\t\t", length(categories), "\n")
-    #for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end    
+    node_colors = node_colorss[(categories.membership .+ 1) .% length(node_colorss) .+ 1]  
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
     run_label = "$(jc.method)-$(jc.γ)$(jc.task_series)"
@@ -465,7 +462,7 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
                     linetype=line_type,
-                    edgestrokec=colors[rand(1:length(colors))], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
+                    edgestrokec=edge_colors[rand(1:length(edge_colors))], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
                     ); 
                     # or linetype = "curve" or "straight" 
                     # edgestrokec = edge_colors,  
@@ -477,7 +474,7 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
                     linetype=line_type,
-                    edgestrokec=colors[rand(1:length(colors))]);
+                    edgestrokec=edge_colors[rand(1:length(edge_colors))]);
     end
     save_path = "$fig_path/community-$run_label" 
     if !ispath(save_path) mkpath(save_path) end
