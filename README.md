@@ -23,7 +23,7 @@ Email: cen@njust.edu.cn
 
 <br><b>A Demo</b>
 <pre>
-include("julia-community/julia-community.jl")
+include("julia-community.jl")
 using DataFrames
 
 import .JuliaCommunity as juliac
