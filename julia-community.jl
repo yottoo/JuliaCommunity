@@ -26,7 +26,7 @@ module JuliaCommunity
 using LightGraphs, SimpleWeightedGraphs, GraphPlot
 using PyCall
 using DataFrames, CSV
-using Statistics, StatsBase
+using Statistics, StatsBase, Random
 using Parameters
 using Cairo, Compose
 
@@ -199,6 +199,7 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     edge_weight = jc.edge_weighted ? jc.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
+    shuffle!(colors)
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
     # edge_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((weights .-  minimum(weights)) ./ (maximum(weights) - minimum(weights))))]
     
@@ -207,11 +208,12 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     ======================================================================== =#
     igraph = jc.igraph
     
-    categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-    
-    node_colors = []
+    #categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
+    categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
+    #node_colors = []
     # print("\t\t", length(categories), "\n")
-    for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end    
+    #for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
     run_label = "$(jc.method)-$(jc.γ)$(jc.task_series)"
@@ -425,6 +427,7 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
     edge_weight = jc.edge_weighted ? community_graph.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
+    shuffle!(colors)
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
     # edge_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((weights .-  minimum(weights)) ./ (maximum(weights) - minimum(weights))))]
     
@@ -443,11 +446,12 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
         igraph = ig.Graph(zip(network.from .- 1, network.to .- 1), directed=false)
     end
 
-    categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-
-    node_colors = []
+    #categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
+    categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
+    #node_colors = []
     # print("\t\t", length(categories), "\n")
-    for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end    
+    #for c_c in 1:length(categories) node_colors = vcat(node_colors, colors[fill((c_c - 1) % length(colors) + 1, length(categories[c_c]))]) end    
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
     run_label = "$(jc.method)-$(jc.γ)$(jc.task_series)"
