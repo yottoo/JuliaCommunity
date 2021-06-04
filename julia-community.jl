@@ -208,8 +208,8 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     ======================================================================== =#
     igraph = jc.igraph
     
-    #categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-    categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
+    #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
     node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
     #node_colors = []
     # print("\t\t", length(categories), "\n")
@@ -446,8 +446,8 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
         igraph = ig.Graph(zip(network.from .- 1, network.to .- 1), directed=false)
     end
 
-    #categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-    categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
+    #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
     node_colors = colors[(categories.membership .+ 1) .% length(colors) .+ 1]
     #node_colors = []
     # print("\t\t", length(categories), "\n")
