@@ -186,17 +186,17 @@ function summarise_graph(jc::JuliaCommunityInstance)
 end
 
 
-function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::Bool=false, smooth_node_size::Bool=true, smooth_edge_width::Bool=true, linetype="straight", arrowlengthfrac=0.015, arrowangleoffset=π / 8)
+function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::Bool=false, node_size_smoother::Float64=0.5, edge_width_smoother::Float64=0.5, line_type::String="straight", arrow_length_frac::Float64=0.015, arrow_angle::Float64=π / 8)
     if !mute print("\n\nPlotting the network graph......\n\t")    end
     
     g = jc.graph
 
     labels = jc.nodes[:, jc.node_label_field]    
-    nodesize = jc.node_weighted ? (smooth_node_size ? jc.nodes[:, jc.node_importance_field].^0.5 : jc.nodes[:, jc.node_importance_field]) : fill(1, nv(g))
+    nodesize = jc.node_weighted ? jc.nodes[:, jc.node_importance_field].^ node_size_smoother : fill(1, nv(g))
     # labels[findall(size -> size < ceil(ne(jc.graph) / 100), nodesize)] .= ""
     # nodesize = log.(nodesize .+ 1)
     # edge_weights = jc.network[:weight].^0.72
-    edge_weight = jc.edge_weighted ? (smooth_edge_width ? jc.network.weight.^0.5 : jc.network.weight) : fill(1, ne(g))
+    edge_weight = jc.edge_weighted ? jc.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
@@ -220,23 +220,23 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
 
     if jc.is_directed
         plot = gplot(g, nodesize=nodesize, nodelabel=labels, 
-                    nodelabeldist=2.5, nodelabelangleoffset=π / 4,
+                    nodelabeldist=0.2, nodelabelangleoffset=π / 4,
                     nodelabelsize=nodesize, edgelinewidth=edge_weight, 
-                    nodefillc=node_colors, 
+                    nodefillc=node_colors,
                     nodelabelc=node_colors, 
-                    linetype=linetype,
-                    edgestrokec=colors[rand(1:length(colors), 1)[1]], arrowlengthfrac=arrowlengthfrac, arrowangleoffset=arrowangleoffset
+                    linetype=line_type,
+                    edgestrokec=colors[rand(1:length(colors), 1)[1]], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
                     ); 
                     # or linetype = "curve" or "straight" 
                     # edgestrokec = edge_colors,  
                     # edgestrokec=colors[rand(1:length(colors), 1)[1]]
     else
         plot = gplot(g, nodesize=nodesize, nodelabel=labels, 
-                    nodelabeldist=2.5, nodelabelangleoffset=π / 4,
+                    nodelabeldist=0.2, nodelabelangleoffset=π / 4,
                     nodelabelsize=nodesize, edgelinewidth=edge_weight,
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
-                    linetype=linetype,
+                    linetype=line_type,
                     edgestrokec=colors[rand(1:length(colors), 1)[1]]);
     end
     if !ispath(fig_path) mkpath(fig_path) end
@@ -409,7 +409,7 @@ function build_community_graph(jc::JuliaCommunityInstance, c::Int; to_save_data:
     end   
 end
 
-function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fig", to_save_data::Bool=true, mute::Bool=false, smooth_node_size::Bool=true, smooth_edge_width::Bool=true, linetype="straight", arrowlengthfrac=0.012, arrowangleoffset=π / 18)
+function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fig", to_save_data::Bool=true, mute::Bool=false, node_size_smoother::Float64=0.5, edge_width_smoother::Float64=0.5, line_type="straight", arrow_length_frac::Float64=0.012, arrow_angle::Float64=π / 18)
     if !mute print("\n\nPlotting the community $c......\n\t")    end
     
     community_graph = build_community_graph(jc, c, to_save_data=to_save_data, mute=mute)
@@ -417,12 +417,12 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
     g = community_graph.graph
     if isnothing(g) return  end
     labels = community_graph.node_labels
-    nodesize = jc.node_weighted ? (smooth_node_size ? community_graph.node_weights.^0.5 : community_graph.node_weights) : fill(1, nv(g))
+    nodesize = jc.node_weighted ? community_graph.node_weights.^ node_size_smoother : fill(1, nv(g))
     # labels[findall(size -> size < ceil(community.edges / 100), nodesize)] .= ""
     # nodesize = log.(nodesize .+ 1)
     # edge_weights = log.(community.network[:co_f] .+ 1)
     # edge_weights = community_graph.network[:weight].^0.72
-    edge_weight = jc.edge_weighted ? (smooth_edge_width ? community_graph.network.weight.^0.5 : community_graph.network.weight) : fill(1, ne(g))
+    edge_weight = jc.edge_weighted ? community_graph.network.weight.^ edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     colors = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
     # node_colors = colors[1 .+ Int.((length(colors) - 1) .* ceil.((nodesize .-  minimum(nodesize)) ./ (maximum(nodesize) - minimum(nodesize))))]
@@ -456,23 +456,23 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
 
     if jc.is_directed
         plot = gplot(g, nodesize=nodesize, nodelabel=labels, 
-                    nodelabeldist=2.5, nodelabelangleoffset=π / 4,
+                    nodelabeldist=0.2, nodelabelangleoffset=π / 4,
                     nodelabelsize=nodesize, edgelinewidth=edge_weight, 
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
-                    linetype=linetype,
-                    edgestrokec=colors[rand(1:length(colors))], arrowlengthfrac=arrowlengthfrac, arrowangleoffset=arrowangleoffset
+                    linetype=line_type,
+                    edgestrokec=colors[rand(1:length(colors))], arrowlengthfrac=arrow_length_frac, arrowangleoffset=arrow_angle
                     ); 
                     # or linetype = "curve" or "straight" 
                     # edgestrokec = edge_colors,  
                     # edgestrokec=colors[rand(1:length(colors), 1)[1]]
     else
         plot = gplot(g, nodesize=nodesize, nodelabel=labels, 
-                    nodelabeldist=2.5, nodelabelangleoffset=π / 4,
+                    nodelabeldist=0.2, nodelabelangleoffset=π / 4,
                     nodelabelsize=nodesize, edgelinewidth=edge_weight, 
                     nodefillc=node_colors, 
                     nodelabelc=node_colors, 
-                    linetype=linetype,
+                    linetype=line_type,
                     edgestrokec=colors[rand(1:length(colors))]);
     end
     save_path = "$fig_path/community-$run_label" 
