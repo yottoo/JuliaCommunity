@@ -34,7 +34,8 @@ network = DataFrame(from = [1,2,2,2,3,3,4,4,4,5,5,5,6,6,8,8,10,10],
                   weight = [1,2,3,1,4,4,2,6,1,1,7,2,5,3,2,4,3,2])
 
 #create a JuliaCommunity instance
-jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "label", node_weighted = true, to_summarise_graph = false, task_series = "test")
+jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "label", 
+                                   node_weighted = true, to_summarise_graph = false, task_series = "test")
 
 #plot the overall network
 juliac.plot_network(jc, line_type="curve", node_size_smoother = 0.8, edge_width_smoother = 1.2)
