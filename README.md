@@ -1,6 +1,6 @@
 # JuliaCommunity
 A julia wrapper of <a href='https://github.com/vtraag/leidenalg'>Leiden algorithm</a> to discover and plot the communities of a network.
-NOTE: the leiden algorithm is implemented by the python package leidenalg, so
+<br>NOTE: the leiden algorithm is implemented by the python package leidenalg, so
         before doing community discovery, Conda, PyCall have to be installed as
         follows:
 
