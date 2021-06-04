@@ -60,8 +60,36 @@ juliac.community_discover(jc)
 
 #print the communities discovered
 println(jc.communities)
+
+"""
+3×2 DataFrame
+ Row │ c      size  
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1      4
+   2 │     2      3
+   3 │     3      3
+"""
+
 #print the memberships of the communities discovered
 println(jc.memberships)
+
+"""
+10×2 DataFrame
+ Row │ id     c     
+     │ Int64  Int64 
+─────┼──────────────
+   1 │     1      1
+   2 │     2      1
+   3 │     3      1
+   4 │     4      1
+   5 │     5      2
+   6 │     6      2
+   7 │     7      3
+   8 │     8      2
+   9 │     9      3
+  10 │    10      3
+"""
 
 #plot the first community
 juliac.plot_community(jc, 1, line_type="curve")
