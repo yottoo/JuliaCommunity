@@ -16,9 +16,7 @@ A julia wrapper of <a href='https://github.com/vtraag/leidenalg'>Leiden algorith
             #Conda.pip("install", "numpy")
             Conda.pip("install", "leidenalg")
 
-Contributors: Xiaoshan Nian
-Date: August, 2020
-Email: cen@njust.edu.cn
+Contributor: Xiaoshan Nian(cen@njust.edu.cn)
 
 
 <br><b>A Demo</b>
