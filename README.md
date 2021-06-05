@@ -51,7 +51,7 @@ juliac.plot_network(jc, line_type="curve", node_size_smoother = 0.8, edge_width_
 #juliac.set_method(jc, jc.methods.louvain)
 
 #run leiden algorithm
-#juliac.set_method(jc, jc.methods.CPM)    #default settings
+#juliac.set_method(jc, jc.methods.CPM)    #default
 #juliac.set_method(jc, jc.methods.modularity)
 
 #set the CPM γ for leiden algorithm
@@ -99,4 +99,4 @@ juliac.plot_community(jc, 1, line_type="curve")
 
 <img src="community-1.svg" />
 
-<p>Contributor: Xiaoshan Nian(cen@njust.edu.cn). June, 2021</p>
+Contributor: Xiaoshan Nian(cen@njust.edu.cn). June, 2021
