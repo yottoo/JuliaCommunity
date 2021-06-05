@@ -2,7 +2,7 @@
 A julia wrapper for <a href='https://github.com/vtraag/leidenalg'>Leiden algorithm</a> (see the <a href='https://www.nature.com/articles/s41598-019-41695-z'>paper</a>) to discover and plot the communities of a network.
 <p>Leiden algorithm by both CPMVertexPartition (with a resolution parameter γ) and ModularityVertexPartition, as well as Louvain algorithm are implemented.</p>
 <p>Technically, the wrapper serves well for huge networks/graphs, weighted or unweighted, directed or undirected, building on <a href='https://github.com/JuliaGraphs/SimpleWeightedGraphs.jl'>SimpleWeightedGraphs.jl</a>. </p>
-<p>The whole network/graph and the discovered communities can be plotted with the backend <a href='https://github.com/JuliaGraphs/GraphPlot.jl'>GraphPlot.jl</a>. When plotting the whole network, a graph with vertices no more than 5000 is encourgaged. Given a network/graph or a community, the plotting processing will first do a basic partition by ModularityVertexPartition-based leiden algorithm to ensure 'closer' nodes are rendered with same random colors.</p>
+<p>The entire network/graph and the discovered communities can be plotted with the backend <a href='https://github.com/JuliaGraphs/GraphPlot.jl'>GraphPlot.jl</a>. When plotting the whole network, a graph with vertices no more than 5000 is encourgaged. Given a network/graph or a community, the plotting processing will first do a basic partition by ModularityVertexPartition-based Leiden algorithm to ensure 'closer' nodes are rendered with same random colors.</p>
 <p><a href='https://juliagraphs.org/LightGraphs.jl/latest/centrality/'>Centrality measures</a> of the nodes and the global cluster coefficients of the graph as well as the local cluster coefficients of the discovered communities could be assessed based on <a href='https://github.com/JuliaGraphs/LightGraphs.jl'>LightGraph.jl</a>.</p>
 <p>More detailed documentation will be done soon.</p>
 
@@ -43,7 +43,7 @@ network = DataFrame(from = [1,2,2,2,3,3,4,4,4,5,5,5,6,6,8,8,10,10],
 jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "label", 
                                    node_weighted = true, to_summarise_graph = false, task_series = "test")
 
-#plot the overall network
+#plot the entire network/graph
 juliac.plot_network(jc, line_type="curve", node_size_smoother = 0.8, edge_width_smoother = 1.2)
 </pre>
 
