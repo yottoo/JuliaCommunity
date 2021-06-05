@@ -36,7 +36,11 @@ network = DataFrame(from = [1,2,2,2,3,3,4,4,4,5,5,5,6,6,8,8,10,10],
                       to = [3,3,4,9,2,4,2,3,7,3,6,7,5,8,5,6,7,9],
                   weight = [1,2,3,1,4,4,2,6,1,1,7,2,5,3,2,4,3,2])
 
-#create a JuliaCommunity instance
+#================================================================
+create a JuliaCommunity instance.
+task_series is used to name the processing data files (e.g., data/communities-$task_series.csv) and 
+the svgs (e.g., fig/network-graph-$task_series.svg or fig/community-$(community_id)-$task_series.svg).
+================================================================#
 jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "label", 
                                    node_weighted = true, to_summarise_graph = false, task_series = "test")
 
