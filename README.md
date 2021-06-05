@@ -1,7 +1,13 @@
 # JuliaCommunity
-A julia wrapper of <a href='https://github.com/vtraag/leidenalg'>Leiden algorithm</a> to discover and plot the communities of a network.
-<br>NOTE: the leiden algorithm is implemented by the python package leidenalg, so
-        before doing community discovery, Conda, PyCall have to be installed as
+<pre>
+A julia wrapper for <a href='https://github.com/vtraag/leidenalg'>Leiden algorithm</a> (https://www.nature.com/articles/s41598-019-41695-z) to discover and plot the communities of a network. 
+Leiden algorithm by both CPMVertexPartition (with a resolution parameter γ) and ModularityVertexPartition, as well as Louvain algorithm are implemented.
+Technically, the wrapper serves well for huge network/graph, weighted or unweighted, directed or undirected.
+The whole network/graph and the discovered communities can be plotted with the backend <a href='https://github.com/JuliaGraphs/GraphPlot.jl'>GraphPlot.jl</a>. When plotting the whole network, a graph with vertices no more than 5000 is encourgaged. Given a network/graph or a community, the plotting processing will do a basic partition by ModularityVertexPartition leiden algorithm to ensure 'closer' nodes are rendered with same random colors.
+<a href='https://juliagraphs.org/LightGraphs.jl/latest/centrality/'>Centrality measures</a> of the nodes and the global cluster coefficients as well as the local cluster coefficients of the discovered communities could be assessed based on <a href='https://github.com/JuliaGraphs/LightGraphs.jl'>LightGraph.jl</a>.
+
+NOTE: the leiden algorithm is implemented by the python package leidenalg, so
+        before doing community discovery, Conda and PyCall have to be installed as
         follows:
 
             import Pkg
@@ -17,7 +23,7 @@ A julia wrapper of <a href='https://github.com/vtraag/leidenalg'>Leiden algorith
             Conda.pip("install", "leidenalg")
 
 Contributor: Xiaoshan Nian(cen@njust.edu.cn)
-
+</pre>
 
 <br><b>A Demo</b>
 <pre>
