@@ -42,7 +42,7 @@ task_series is used to name the processing data files (e.g., data/communities-$t
 the svgs (e.g., fig/network-graph-$task_series.svg or fig/community-$(community_id)-$task_series.svg).
 ================================================================#
 jc = juliac.JuliaCommunityInstance(network, nodes = nodes, node_label_field = "label", 
-                                   node_weighted = true, to_summarise_graph = false, task_series = "test")
+                                   node_weighted = true, to_summarise_graph = false, task_series = "demo")
 
 #plot the entire network/graph
 juliac.plot_network(jc, line_type="curve", node_size_smoother = 0.8, edge_width_smoother = 1.2)
