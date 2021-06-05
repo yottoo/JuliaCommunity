@@ -30,8 +30,8 @@ using DataFrames
 import .JuliaCommunity as juliac
 
 nodes = DataFrame(id = [1,2,3,4,5,6,7,8,9,10], 
-                label = ["a","b","c","d","e","f","g","h","i","j"], 
-                importance=[1,5,6,5,5,4,3,3,2,2])
+               label = ["a","b","c","d","e","f","g","h","i","j"], 
+          importance = [1,5,6,5,5,4,3,3,2,2])
 network = DataFrame(from = [1,2,2,2,3,3,4,4,4,5,5,5,6,6,8,8,10,10],
                       to = [3,3,4,9,2,4,2,3,7,3,6,7,5,8,5,6,7,9],
                   weight = [1,2,3,1,4,4,2,6,1,1,7,2,5,3,2,4,3,2])
