@@ -22,9 +22,6 @@ NOTE: the leiden algorithm is implemented by the python package leidenalg, so
             #Conda.pip("install", "numpy")
             Conda.pip("install", "leidenalg")
 
-Contributor: Xiaoshan Nian(cen@njust.edu.cn)
-
-
 <br><b>A Demo</b>
 <pre>
 include("julia-community.jl")
@@ -101,3 +98,5 @@ juliac.plot_community(jc, 1, line_type="curve")
 </pre>
 
 <img src="community-1.svg" />
+
+<p>Contributor: Xiaoshan Nian(cen@njust.edu.cn). June, 2021</p>
