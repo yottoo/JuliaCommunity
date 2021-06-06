@@ -19,6 +19,7 @@ NOTE: the leiden algorithm is implemented by the python package leidenalg, so
 Contributors: Xiaoshan Nian
 Date: August, 2020
 Email: cen@njust.edu.cn
+Github: https://github.com/yottoo/JuliaCommunity
 """
 
 module JuliaCommunity
@@ -31,7 +32,7 @@ using Parameters
 using Cairo, Compose
 
 export JuliaCommunityInstance, 
-        community_discover, 
+        discover_communities, 
         optimise_resolution, 
         save,
         plot_community,
@@ -191,12 +192,14 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     
     g = jc.graph
 
-    labels = jc.nodes[:, jc.node_label_field]    
-    nodesize = jc.node_weighted ? jc.nodes[:, jc.node_importance_field].^ node_size_smoother : fill(1, nv(g))
+    if nv(g) > 5000 throw(error("It makes no sense to plot a huge network with more than 5000 vertices.")) end
+
+    labels = jc.nodes[:, jc.node_label_field]
+    nodesize = jc.node_weighted ? jc.nodes[:, jc.node_importance_field].^node_size_smoother : fill(1, nv(g))
     # labels[findall(size -> size < ceil(ne(jc.graph) / 100), nodesize)] .= ""
     # nodesize = log.(nodesize .+ 1)
     # edge_weights = jc.network[:weight].^0.72
-    edge_weight = jc.edge_weighted ? jc.network.weight.^ edge_width_smoother : fill(1, ne(g))
+    edge_weight = jc.edge_weighted ? jc.network.weight.^edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     node_colorss = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
     edge_colors = ["navajowhite3", "coral2", "orange3", "yellow3", "yellowgreen", "turquoise", "lightskyblue", "mediumpurple1", "hotpink2", "tan3", "grey64"]
@@ -210,7 +213,7 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
     igraph = jc.igraph
     
     categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-    #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    # categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
     node_colors = node_colorss[(categories.membership .+ 1) .% length(node_colorss) .+ 1]
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
@@ -240,12 +243,12 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
                     edgestrokec=edge_colors[rand(1:length(edge_colors), 1)[1]]);
     end
     if !ispath(fig_path) mkpath(fig_path) end
-    draw(SVG("$fig_path/network-graph-$run_label.svg", 20cm, 16cm), plot);
+draw(SVG("$fig_path/network-graph-$run_label.svg", 20cm, 16cm), plot);
 end
 
 
 """
-caculate_centralities:  Caculate the centralities of the target papers.
+caculate_centralities:  Caculate the centralities of the network.
     Note: for weighted networks, eigenvector centrality measure may not lead to convergency.
 """
 function caculate_centralities(jc::JuliaCommunityInstance; to_save::Bool=true) 
@@ -298,10 +301,10 @@ end
 
 
 """
-community_discover:    discover the communities by leiden algorithm (both CMP and modularity method) 
+discover_communities:    discover the communities by leiden algorithm (both CMP and modularity method) 
     and louvain algorithm.
 """
-function community_discover(jc::JuliaCommunityInstance)
+function discover_communities(jc::JuliaCommunityInstance)
     print("\nDiscovering the communities for the built network......")
     
     partitions = nothing
@@ -333,13 +336,12 @@ function community_discover(jc::JuliaCommunityInstance)
     jc.communities = DataFrame(c=1:jc.n_community, size=length.(partitions))
 end
 
-
 function optimise_resolution(jc::JuliaCommunityInstance; γ_from::Float64=0.0001, γ_end::Float64=0.01, γ_step::Float64=0.0001)
     print("\n\nFinding the best resolution for the Leiden-based community discovery algorithm......")
     qualities = DataFrame(resolution=[], n_community=[], modularity=[], quality=[])
     jc_copy = copy(jc)
     for γ  in γ_from:γ_step:γ_end
-        community_discover(jc_copy)
+        dicover_communities(jc_copy)
         push!(qualities, (γ, jc_copy.n_community, jc_copy.modularity, jc_copy.quality))
         print("\n\t\tResolution: $γ: $(jc_copy.n_community) commxunities discovered; Modularity: $(jc_copy.modularity); CPM Quality: $(jc_copy.quality).") 
     end
@@ -418,12 +420,12 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
     g = community_graph.graph
     if isnothing(g) return  end
     labels = community_graph.node_labels
-    nodesize = jc.node_weighted ? community_graph.node_weights.^ node_size_smoother : fill(1, nv(g))
+    nodesize = jc.node_weighted ? community_graph.node_weights.^node_size_smoother : fill(1, nv(g))
     # labels[findall(size -> size < ceil(community.edges / 100), nodesize)] .= ""
     # nodesize = log.(nodesize .+ 1)
     # edge_weights = log.(community.network[:co_f] .+ 1)
     # edge_weights = community_graph.network[:weight].^0.72
-    edge_weight = jc.edge_weighted ? community_graph.network.weight.^ edge_width_smoother : fill(1, ne(g))
+    edge_weight = jc.edge_weighted ? community_graph.network.weight.^edge_width_smoother : fill(1, ne(g))
     # g = Graph(adjacency_matrix(g))
     node_colorss = ["orange", "purple", "turquoise", "green", "red", "blue", "violet", "olive", "tan", "magenta", "cyan", "pink", "gold"]
     edge_colors = ["navajowhite3", "coral2", "orange3", "yellow3", "yellowgreen", "turquoise", "lightskyblue", "mediumpurple1", "hotpink2", "tan3", "grey64"]
@@ -447,7 +449,7 @@ function plot_community(jc::JuliaCommunityInstance, c::Int; fig_path::String="fi
     end
 
     categories = leiden.find_partition(igraph, leiden.ModularityVertexPartition)
-    #categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
+    # categories = leiden.find_partition(igraph, leiden.CPMVertexPartition, resolution_parameter= 1 / nv(g))
     node_colors = node_colorss[(categories.membership .+ 1) .% length(node_colorss) .+ 1]  
     # layout = (args...) -> spring_layout(args...; C = 12)   # where C influences the desired distance between nodes.
 
