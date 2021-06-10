@@ -28,8 +28,8 @@ using LightGraphs, SimpleWeightedGraphs, GraphPlot
 using PyCall
 using DataFrames, CSV
 using Statistics, StatsBase, Random
-using Parameters
-using Cairo, Compose
+using Parameters, ProgressMeter
+using Gadfly, Cairo, Compose
 
 export JuliaCommunityInstance, 
         discover_communities, 
@@ -243,7 +243,9 @@ function plot_network(jc::JuliaCommunityInstance; fig_path::String="fig", mute::
                     edgestrokec=edge_colors[rand(1:length(edge_colors), 1)[1]]);
     end
     if !ispath(fig_path) mkpath(fig_path) end
-draw(SVG("$fig_path/network-graph-$run_label.svg", 20cm, 16cm), plot);
+    filename = "$fig_path/network-graph-$run_label.svg"
+    draw(SVG(filename, 20cm, 16cm), plot);
+    open_file(filename)
 end
 
 
@@ -304,8 +306,8 @@ end
 discover_communities:    discover the communities by leiden algorithm (both CMP and modularity method) 
     and louvain algorithm.
 """
-function discover_communities(jc::JuliaCommunityInstance)
-    print("\nDiscovering the communities for the built network......")
+function discover_communities(jc::JuliaCommunityInstance; mute::Bool=false)
+    if !mute print("\nDiscovering the communities for the built network......") end
     
     partitions = nothing
     if jc.method == jc.methods.CPM
@@ -319,7 +321,7 @@ function discover_communities(jc::JuliaCommunityInstance)
     if isnothing(partitions) return end
 
     jc.n_community = length(partitions)
-    println("\t\t$(jc.n_community) communities have been discovered.")
+    if !mute println("\t\t$(jc.n_community) communities have been discovered.") end
     
     # partitions = leiden.find_partition(g, leiden.ModularityVertexPartition, resolution_parameter=0.2)
     # The following code could not be done to Leiden community members 
@@ -337,15 +339,54 @@ function discover_communities(jc::JuliaCommunityInstance)
 end
 
 function optimise_resolution(jc::JuliaCommunityInstance; γ_from::Float64=0.0001, γ_end::Float64=0.01, γ_step::Float64=0.0001)
-    print("\n\nFinding the best resolution for the Leiden-based community discovery algorithm......")
+    println("\n")
     qualities = DataFrame(resolution=[], n_community=[], modularity=[], quality=[])
-    jc_copy = copy(jc)
+    jc_copy = deepcopy(jc)
+    progress = Progress(length(γ_from:γ_step:γ_end), desc="Finding the best resolution γ for the Leiden-based community discovery algorithm: ")
     for γ  in γ_from:γ_step:γ_end
-        dicover_communities(jc_copy)
+        jc_copy.γ = γ
+        discover_communities(jc_copy, mute = true)
         push!(qualities, (γ, jc_copy.n_community, jc_copy.modularity, jc_copy.quality))
-        print("\n\t\tResolution: $γ: $(jc_copy.n_community) commxunities discovered; Modularity: $(jc_copy.modularity); CPM Quality: $(jc_copy.quality).") 
+        next!(progress)
+        #print("\n\t\tResolution: $γ: $(jc_copy.n_community) commxunities discovered; Modularity: $(jc_copy.modularity); CPM Quality: $(jc_copy.quality).") 
     end
     CSV.write("data/community_discover_optimisation-$(jc.method)$(jc.task_series).csv", qualities)
+
+    p_modularity = plot(
+        layer(qualities, x=:resolution, y=:modularity, Geom.line, Geom.point, Theme(default_color="blue")),        
+        Guide.xticks(ticks=γ_from:γ_step * 2:γ_end),
+        Guide.xlabel("resolution γ"),
+        Guide.ylabel("modularity"),
+        Theme(major_label_font_size=10pt),
+        Scale.y_continuous(format=:plain)
+    )
+    fig_modularity = "fig/community_discover_optimisation-modularities-$(jc.method)$(jc.task_series).svg"
+    draw(SVG(fig_modularity, 24cm, 16cm), p_modularity);
+    open_file(fig_modularity)
+
+    p_quality = plot(
+        layer(qualities, x=:resolution, y=:quality, Geom.line, Geom.point, Theme(default_color="blue")),        
+        Guide.xticks(ticks=γ_from:γ_step * 2:γ_end),
+        Guide.xlabel("resolution γ"),
+        Guide.ylabel("quality"),
+        Theme(major_label_font_size=10pt),
+        Scale.y_continuous(format=:plain)
+    )
+    fig_quality = "fig/community_discover_optimisation-qualities-$(jc.method)$(jc.task_series).svg"
+    draw(SVG(fig_quality, 24cm, 16cm), p_quality);
+    open_file(fig_quality)
+
+    p_n_communities = plot(
+        layer(qualities, x=:resolution, y=:n_community, Geom.line, Geom.point, Theme(default_color="blue")),        
+        Guide.xticks(ticks=γ_from:γ_step * 2:γ_end),
+        Guide.xlabel("resolution γ"),
+        Guide.ylabel("number of communities"),
+        Theme(major_label_font_size=10pt),
+        Scale.y_continuous(format=:plain)
+    )
+    fig_n_communities = "fig/community_discover_optimisation-n-communities-$(jc.method)$(jc.task_series).svg"
+    draw(SVG(fig_n_communities, 24cm, 16cm), p_n_communities);
+    open_file(fig_n_communities)
 end
 
 
@@ -504,6 +545,18 @@ function compute_cluster_coef(jc::JuliaCommunityInstance)
     avg_cluster_cof = mean(cluster_cofs)
     
     print("\tThe total clustering coefficient of the network  all the communities is $(global_clustering_coefficient(jc.graph)); The average clustering coefficient for all the communities is $avg_cluster_cof.")
+end
+
+function open_file(filename)
+    if Sys.isapple()
+        run(`open $(filename)`)
+    elseif Sys.islinux() || Sys.isbsd()
+        run(`xdg-open $(filename)`)
+    elseif Sys.iswindows()
+        run(`$(ENV["COMSPEC"]) /c start $(filename)`)
+    else
+        @warn "Showing plots is not supported on OS $(string(Sys.KERNEL))"
+    end
 end
 
 end
